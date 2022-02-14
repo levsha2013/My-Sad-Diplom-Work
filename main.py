@@ -1,19 +1,27 @@
 import cv2
+import numpy as np
+import random
 
-img = cv2.imread('CC2.jpg')
-#cv2.imshow('Start image', img)
-#cv2.waitKey(5000)
+# искажение
+def gasuss_noise(img=0):
+    noise = np.random.normal(5, 0.5, 500)  # main, SKO, numbers
+    v = np.var(noise)  # dispers
+    m = np.mean(noise)
+    print(m, v, "\n")
 
-#mov = cv2.VideoCapture(0)                   # считываем видео с камеры (0)
-mov = cv2.VideoCapture('video1.mp4')       # считываем видео с файла
-mov.set(3,9000)                              # 3 - ширина, 4 - высота
-mov.set(4,300)
+    return noise
 
-success= 1
-while(True):
-    success, img = mov.read()
-    cv2.imshow('Result', img)
-    if (cv2.waitKey(50)) & 0xFF == ord('q'):
-        break
+img1 = cv2.imread('CC2.jpg')
 
+img1 = cv2.resize(img1,(img1.shape[1]//2, img1.shape[0]//2))    # уменьшаю, чтобы влезло в экран
+img = img1[:472,:]      # убираю надпись снизу
+
+
+cv2.imshow('1 image', img1)
+cv2.imshow('2 image', img)
+
+
+
+print(img1.shape)
 cv2.waitKey(0)
+
