@@ -26,7 +26,7 @@ def generate_CC(colors, name):
             num_color += 1
     output = cv2.resize(output, (500,400))
     cv2.imshow(name, output)        # show result
-    cv2.waitKey(1)
+    cv2.waitKey(0)
     return output
 
 # distortion the color (s_color)
@@ -84,9 +84,9 @@ CC2 = cv2.imread('CC2.jpg')  # without values
 start_colors = get_color_from_CC_np(CC2)  # take the colors from CC
 generate_CC(start_colors, 'Start CC')  # generate CC
 
-#noise3 = np.random.normal(0, 20, 3)  # main, SKO, numbers (B,G,R)
-#noise = np.full((24,3), noise3)      # double noise3 for 24 colors
-noise = np.random.normal(0, 20, (24,3))  # main, SKO, numbers (24 * B,G,R)
+noise3 = np.random.normal(0, 20, 3)  # main, SKO, numbers (B,G,R)
+noise = np.full((24,3), noise3)      # double noise3 for 24 colors
+#noise = np.random.normal(0, 20, (24,3))  # main, SKO, numbers (24 * B,G,R)
 
 dist_colors = distortion_np(start_colors, noise)     # distortion colors
 generate_CC(dist_colors, 'Distortion CC')  # generate dist_CC
@@ -104,6 +104,7 @@ del_colors = np.vstack([devB.copy(), devG.copy(), devR.copy()]).transpose()     
 res_colors = get_result_colors(dist_colors, del_colors)
 generate_CC(res_colors, 'Restruction CC')      # generate result ColorCheker
 
+print('Start colors, Generated noise, Distortion colors, Deviation of colors, Result colors')
 for i in range(24):
     print(start_colors[i], noise[i], dist_colors[i], del_colors[i], res_colors[i])       # result colors and start colors
 cv2.waitKey(0)
