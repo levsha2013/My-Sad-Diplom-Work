@@ -67,11 +67,13 @@ def distortion_np(s_color, noise):
             else: output[i, j] = s_color[i, j] + noise[i, j]            # other cases
     return output
 
+
+    ''' В О С С Т А Н О В Л Е Н И Е'''
 # create Ab, Ag, Ar for distortion colors
 # mode 0 -> F = [1, b, g, r]
 # mode 1 -> F = [1, b, g, r, bg, br, gr, rr, gg, bb]
 # mode 2 -> F = [1, b, g, r, bg^0.5, br^0.5, gr^0.5]
-def restruction(s_color, d_clolor, mode = 0):
+def restruction(s_color, d_clolor, mode =0):
     '''
     :param s_color: start color checker
     :param d_clolor: distortion color checker
@@ -83,10 +85,9 @@ def restruction(s_color, d_clolor, mode = 0):
     dg = delta[:, 1].copy() // 1    # create deviation G channel
     db = delta[:, 0].copy() // 1    # create deviation B channel
     ones = np.ones((24, 1))
-    # create other matrix (F)
     if mode == 0: F = np.concatenate([ones, s_color], axis=1)
     # полином 1 степени
-    elif mode == 1:
+    if mode == 1:
         Fbg = (s_color[:, 2] * s_color[:, 1]).reshape(24, 1)
         Fbr = (s_color[:, 2] * s_color[:, 0]).reshape(24, 1)
         Fgr = (s_color[:, 1] * s_color[:, 0]).reshape(24, 1)
@@ -94,7 +95,7 @@ def restruction(s_color, d_clolor, mode = 0):
         Fgg = (s_color[:, 1]).reshape(24, 1) ** 2
         Fbb = (s_color[:, 2]).reshape(24, 1) ** 2
         F = np.hstack([ones, s_color, Fbg,  Fbr, Fgr, Frr, Fgg, Fbb])  # добавил одну степень полинома
-    # полином 3 степени
+    # полином 3 степени недоделанный
     if mode == 2:
         Fbg = (s_color[:, 2] * s_color[:, 1]).reshape(24, 1)
         Fbr = (s_color[:, 2] * s_color[:, 0]).reshape(24, 1)
@@ -102,11 +103,20 @@ def restruction(s_color, d_clolor, mode = 0):
         Frr = (s_color[:, 0]).reshape(24, 1) ** 2
         Fgg = (s_color[:, 1]).reshape(24, 1) ** 2
         Fbb = (s_color[:, 2]).reshape(24, 1) ** 2
+
         Frrr = (s_color[:, 0]).reshape(24, 1) ** 3
+        Frrg = (s_color[:, 0]**2 * s_color[:, 1]).reshape(24, 1)
+        Frrb = (s_color[:, 0]**2 * s_color[:, 2]).reshape(24, 1)
         Fggg = (s_color[:, 1]).reshape(24, 1) ** 3
+        Fggr = (s_color[:, 1]**2 * s_color[:, 2]).reshape(24, 1)
+        Fggb = (s_color[:, 1] ** 2 * s_color[:, 0]).reshape(24, 1)
         Fbbb = (s_color[:, 2]).reshape(24, 1) ** 3
-        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Frr, Fgg, Fbb, Frrr, Fggg, Fbbb])  # добавил одну степень полинома
-    # полином 5 степени
+        Fbbr = (s_color[:, 2]**2 * s_color[:, 0]).reshape(24, 1)
+        Fbbg = (s_color[:, 2] ** 2 * s_color[:, 1]).reshape(24, 1)
+        Frgb = (s_color[:, 2] * s_color[:, 1] * s_color[:, 0]).reshape(24, 1)
+        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Frr, Fgg, Fbb, Frrr, Frrg, Frrb,
+                       Fggg, Fggr, Fggb, Fbbb, Fbbr, Fbbg, Frgb])  # добавил одну степень полинома
+    # полином 4 степени недоделанный
     if mode == 3:
         Fbg = (s_color[:, 2] * s_color[:, 1]).reshape(24, 1)
         Fbr = (s_color[:, 2] * s_color[:, 0]).reshape(24, 1)
@@ -114,33 +124,42 @@ def restruction(s_color, d_clolor, mode = 0):
         Frr = (s_color[:, 0]).reshape(24, 1) ** 2
         Fgg = (s_color[:, 1]).reshape(24, 1) ** 2
         Fbb = (s_color[:, 2]).reshape(24, 1) ** 2
+
         Frrr = (s_color[:, 0]).reshape(24, 1) ** 3
+        Frrg = (s_color[:, 0] ** 2 * s_color[:, 1]).reshape(24, 1)
+        Frrb = (s_color[:, 0] ** 2 * s_color[:, 2]).reshape(24, 1)
         Fggg = (s_color[:, 1]).reshape(24, 1) ** 3
+        Fggr = (s_color[:, 1] ** 2 * s_color[:, 2]).reshape(24, 1)
+        Fggb = (s_color[:, 1] ** 2 * s_color[:, 0]).reshape(24, 1)
         Fbbb = (s_color[:, 2]).reshape(24, 1) ** 3
+        Fbbr = (s_color[:, 2] ** 2 * s_color[:, 0]).reshape(24, 1)
+        Fbbg = (s_color[:, 2] ** 2 * s_color[:, 1]).reshape(24, 1)
+        Frgb = (s_color[:, 2] * s_color[:, 1]* s_color[:, 0]).reshape(24, 1)
+
         Frrrr = (s_color[:, 0]).reshape(24, 1) ** 4
         Fgggg = (s_color[:, 1]).reshape(24, 1) ** 4
         Fbbbb= (s_color[:, 2]).reshape(24, 1) ** 4
-        Frrrrr = (s_color[:, 0]).reshape(24, 1) ** 5
-        Fggggg = (s_color[:, 1]).reshape(24, 1) ** 5
-        Fbbbbb = (s_color[:, 2]).reshape(24, 1) ** 5
-        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Frr, Fgg, Fbb, Frrr, Fggg, Fbbb,Frrrr, Fgggg, Fbbbb,
-                       Frrrrr,Fggggg, Fbbbbb])  # добавил одну степень полинома
+        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Frr, Fgg, Fbb, Frrr, Frrg, Frrb,
+                       Fggg, Fggr, Fggb, Fbbb, Fbbr, Fbbg, Frgb,Frrrr, Fgggg, Fbbbb])  # добавил одну степень полинома
     elif mode == 4:
+        # root 1
         Fbg = (s_color[:, 2] * s_color[:, 1]).reshape(24, 1) ** 0.5
         Fbr = (s_color[:, 2] * s_color[:, 0]).reshape(24, 1) ** 0.5
         Fgr = (s_color[:, 1] * s_color[:, 0]).reshape(24, 1) ** 0.5
         F = np.hstack([ones, s_color, Fbg, Fbr, Fgr])
     elif mode == 5:
+        # root 2
         Fbg = (s_color[:, 2] * s_color[:, 1]).reshape(24, 1) ** 0.5
         Fbr = (s_color[:, 2] * s_color[:, 0]).reshape(24, 1) ** 0.5
         Fgr = (s_color[:, 1] * s_color[:, 0]).reshape(24, 1) ** 0.5
-        Fbbg = (s_color[:, 2] * s_color[:, 2] * s_color[:, 1]).reshape(24, 1) ** (1/3)
+        Fbbg = (s_color[:, 2] * s_color[:, 2] * s_color[:, 1]).reshape(24, 1) ** (1 / 3)
         Fbbr = (s_color[:, 2] * s_color[:, 2] * s_color[:, 0]).reshape(24, 1) ** (1 / 3)
         Fggb = (s_color[:, 1] * s_color[:, 1] * s_color[:, 2]).reshape(24, 1) ** (1 / 3)
         Fggr = (s_color[:, 1] * s_color[:, 1] * s_color[:, 1]).reshape(24, 1) ** (1 / 3)
         Frrg = (s_color[:, 0] * s_color[:, 0] * s_color[:, 1]).reshape(24, 1) ** (1 / 3)
         Frrb = (s_color[:, 0] * s_color[:, 0] * s_color[:, 2]).reshape(24, 1) ** (1 / 3)
-        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Fbbg, Fbbr, Fggb, Fggr, Frrg, Frrb])
+        Frgb = (s_color[:, 0] * s_color[:, 1] * s_color[:, 2]).reshape(24, 1) ** (1 / 3)
+        F = np.hstack([ones, s_color, Fbg, Fbr, Fgr, Fbbg, Fbbr, Fggb, Fggr, Frrg, Frrb, Frgb])
     Ftr = F.transpose()  # transpone F
     A = np.matmul(Ftr, F)
     A = np.linalg.inv(A)
@@ -164,6 +183,35 @@ def get_result_colors(dist_color, del_color):
             else: output[i,j] = (dist_color[i,j]-del_color[i,j])//1
     return output
 
+    '''К А Ч Е С Т В О'''
+# вычисление евклидового расстояния между 2мя цветами
+def evklid_l2_norma(first_color, second_color):
+    D = 0
+    for i in range(24):
+        a_b = 0
+        for j in range(3):
+            a = int(first_color[i][j])
+            b = int(second_color[i][j])
+            a_b1 = pow((a - b), 2)
+            a_b += a_b1
+        D1 = pow((a_b), 0.5)
+        D += D1
+    kachestvo_Evklid = D / 24
+    return(kachestvo_Evklid)
+
+# неправильная вроде, но оценка качества
+# из одного (исходного) вычитаю другой (восст) и по 24м цветам беру МО и Дисп
+def my_analise_result_noise(first_color, second_color):
+    delta = first_color - second_color  # вычисление разницы между исходными и результирующими цветами
+    delta_list = np.empty((24, 3), dtype='uint16')
+    for i in range(len(delta)):
+        for j in range(len(delta[i])):
+            if delta[i][j] > 200:
+                delta_list[i][j] = 255 - delta[i][j]
+            else:
+                delta_list[i][j] = delta[i][j]
+    # вывод МО и дисперсии от разницы
+    print(m + 1, delta_list.mean(), delta_list.var())
 
 CC1 = cv2.imread('CC1.jpg')  # with values
 CC2 = cv2.imread('CC2.jpg')  # without values
@@ -171,17 +219,16 @@ CC2 = cv2.imread('CC2.jpg')  # without values
 start_colors = get_color_from_CC_np(CC2)  # take the colors from CC
 result = generate_CC(start_colors, 'Start CC', 0)  # generate CC
 
-noise3 = np.random.normal(4, 50, 3)  # main, SKO, numbers (B,G,R)
+noise3 = np.random.normal(0, 50, 3)  # main, SKO, numbers (B,G,R)
+print(noise3)
 noise = np.full((24,3), noise3)      # double noise3 for 24 colors
 #noise = np.random.normal(0, 20, (24,3))  # main, SKO, numbers (24 * B,G,R)
 
 dist_colors = distortion_np(start_colors, noise)     # distortion colors
 generate_CC(dist_colors, 'Distortion CC', 1, result)  # generate dist_CC
 
-#for i in range(24):
-#    print(start_colors[i], dist_color[i], noise[i]//1)      # start + noise = distortion
 for m in range(6):
-
+    # получаю
     Ab, Ag, Ar, F = restruction(start_colors, dist_colors, m)
 
     devR = np.matmul(F, Ar)          # get deviation Red
@@ -190,14 +237,13 @@ for m in range(6):
     del_colors = np.vstack([devB.copy(), devG.copy(), devR.copy()]).transpose()     # create mass of deviation
     res_colors = get_result_colors(dist_colors, del_colors)
     generate_CC(res_colors, 'Restruction CC_'+str(m), 2, result)      # generate result ColorCheker
-    delta = start_colors-res_colors
-    delta_list = np.empty((24,3), dtype='uint16')
-    for i in range(len(delta)):
-        for j in range(len(delta[i])):
-            if delta[i][j] > 200: delta_list[i][j] = 255-delta[i][j]
-            else: delta_list[i][j] = delta[i][j]
-    print(delta_list.mean(), delta_list.var())
-    """print('Start colors, Generated noise, Distortion colors, Deviation of colors, Result colors mode = '+ str(m))
+
+    # вычислим евклидову норму (норму l2))
+    print("Качество по евклиду: ",evklid_l2_norma(start_colors,res_colors), '\n')
+
+
+    """
+    print('Start colors, Generated noise, Distortion colors, Deviation of colors, Result colors mode = '+ str(m))
     for i in range(24):
         print(start_colors[i], noise[i] // 1, dist_colors[i] // 1, del_colors[i] // 1, res_colors[i] // 1, delta_list[i])
 """
